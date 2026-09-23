@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — Studiora</title>
+  <link rel="icon" type="image/png" href="/assets/studiora-logo.png" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="auth-split-wrapper">
+    <!-- Left Dark Teal Branding Hero -->
+    <div class="auth-left-brand">
+      <div class="auth-brand-header">
+        <img src="/assets/studiora-logo.png" alt="Studiora Logo" />
+        <span class="auth-brand-name">Studiora</span>
+      </div>
+
+      <div class="auth-left-content">
+        <h1 class="auth-hero-h1">
+          Unlock Smarter Learning.<br />
+          <span>Remember Better.</span>
+        </h1>
+        <p class="auth-hero-desc">
+          Turn your study material into simple notes, interactive quizzes &amp; real progress with the power of AI.
+        </p>
+        <div class="auth-illustration-wrap">
+          <img src="/assets/studiora-student.png" alt="Studiora Student Studying" />
+        </div>
+      </div>
+
+      <div style="font-size: 0.78rem; color: var(--text-on-dark-muted);">
+        &copy; 2026 Studiora Inc. All rights reserved.
+      </div>
+    </div>
+
+    <!-- Right Register Card -->
+    <div class="auth-right-form">
+      <div class="auth-form-card">
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.35rem;">
+            Create Your Account
+          </h2>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            Join Studiora and turn materials into mastery
+          </p>
+        </div>
+
+        <!-- Error Alert -->
+        <div id="error-message" style="display: none; background-color: var(--error-bg); color: var(--error); border: 1px solid var(--error); border-radius: var(--radius-md); padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1.25rem;"></div>
+
+        <form id="register-form">
+          <div class="form-group">
+            <label class="form-label" for="full_name">Full Name</label>
+            <input type="text" id="full_name" class="form-control" placeholder="Aditi Sahu" required autocomplete="name" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Email address</label>
+            <input type="email" id="email" class="form-control" placeholder="you@example.com" required autocomplete="email" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <div style="position: relative;">
+              <input type="password" id="password" class="form-control" placeholder="At least 6 characters" required autocomplete="new-password" style="padding-right: 2.4rem;" />
+              <button type="button" class="toggle-password-btn" data-target="password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0.25rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="confirm_password">Confirm Password</label>
+            <div style="position: relative;">
+              <input type="password" id="confirm_password" class="form-control" placeholder="Re-enter password" required autocomplete="new-password" style="padding-right: 2.4rem;" />
+              <button type="button" class="toggle-password-btn" data-target="confirm_password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0.25rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="submit-btn" class="btn btn-gold" style="width: 100%; margin-top: 0.5rem;">
+            Create Account
+          </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.75rem; font-size: 0.85rem; color: var(--text-secondary);">
+          Already have an account? 
+          <a href="/login.html" style="font-weight: 700; color: var(--primary-dark-teal);">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studiora — Everything you need to learn better</title>
+  <link rel="icon" type="image/png" href="/assets/studiora-logo.png" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .landing-nav {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .landing-hero {
+      max-width: 1200px;
+      margin: 3.5rem auto 5rem;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+    .hero-h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .hero-h1 span {
+      color: var(--primary-dark-teal);
+    }
+    .hero-p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .hero-img-wrap {
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      background: var(--card-white);
+    }
+    .features-grid {
+      max-width: 1200px;
+      margin: 0 auto 6rem;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+    }
+    .feature-card {
+      background: var(--card-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      transition: var(--transition);
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-dark-teal);
+    }
+    .feature-icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-full);
+      background: var(--light-teal);
+      color: var(--primary-dark-teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+    @media (max-width: 900px) {
+      .landing-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        margin-top: 1.5rem;
+      }
+      .hero-h1 {
+        font-size: 2.2rem;
+      }
+      .hero-img-wrap {
+        max-width: 440px;
+        margin: 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header style="background: var(--card-white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;">
+    <div class="landing-nav">
+      <a href="/" class="brand-logo-wrap">
+        <img src="/assets/studiora-logo.png" alt="Studiora Logo" class="brand-logo-img" />
+        <div class="brand-text">
+          <span class="brand-title" style="color: var(--primary-dark-teal);">Studiora</span>
+          <span class="brand-subtitle" style="color: var(--gold);">Learn. Practice. Improve.</span>
+        </div>
+      </a>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="/login.html" class="btn btn-outline btn-sm">Sign In</a>
+        <a href="/register.html" class="btn btn-gold btn-sm">Get Started Free</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="landing-hero">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.85rem; background: var(--light-teal); color: var(--primary-dark-teal); font-size: 0.78rem; font-weight: 700; border-radius: var(--radius-full); margin-bottom: 1.25rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          Everything you need to learn better
+        </div>
+        <h1 class="hero-h1">
+          Turn your study material into <span>simple notes &amp; interactive quizzes</span>
+        </h1>
+        <p class="hero-p">
+          Upload PDFs, Word documents, lecture videos or YouTube links. Let Studiora automatically extract key concepts, generate structured revision notes, and test your knowledge with AI-powered quizzes.
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+          <a href="/register.html" class="btn btn-gold btn-lg">Start Learning Free &rarr;</a>
+          <a href="/login.html" class="btn btn-outline btn-lg">Log In to Workspace</a>
+        </div>
+      </div>
+      <div class="hero-img-wrap">
+        <img src="/assets/studiora-student.png" alt="Studiora Student Studying" style="width: 100%; display: block;" />
+      </div>
+    </section>
+
+    <!-- Key Features Section -->
+    <section style="background: var(--light-cream); padding: 5rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+      <div style="text-align: center; max-width: 640px; margin: 0 auto 3.5rem; padding: 0 1.5rem;">
+        <span class="badge badge-uploaded" style="margin-bottom: 0.5rem;">Academic Features</span>
+        <h2 style="font-size: 2.2rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.75rem;">
+          Built for faster learning &amp; permanent retention
+        </h2>
+        <p style="font-size: 1rem; color: var(--text-secondary);">
+          Say goodbye to hours of tedious manual formatting. Studiora organizes and tests your knowledge effortlessly.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem;">Any Learning Material</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+            Upload PDF textbooks, Word doc notes, local lecture MP4s, or paste YouTube video links with automatic transcript extraction.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem;">Structured Study Guides</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+            AI synthesizes long documents into clear summaries, bulleted key concepts, vocabulary definitions, and revision checklists. Download as PDF or TXT.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem;">Interactive AI Quizzes</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+            Test your comprehension with 5, 10, 15, or 20 questions across Easy, Medium, or Hard difficulty. Immediate feedback with clear pedagogical explanations.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem;">Real Progress Tracking</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+            Track quiz attempts, average accuracy, review incorrect answers, and monitor your personal learning trajectory with dynamic growth charts.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer style="background: var(--card-white); border-top: 1px solid var(--border); padding: 3rem 2rem; text-align: center;">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1rem;">
+      <img src="/assets/studiora-logo.png" alt="Studiora Logo" style="width: 32px; height: 32px;" />
+      <span style="font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 700; font-size: 1.3rem; color: var(--primary-dark-teal);">Studiora</span>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+      Learn. Practice. Improve. &bull; Everything you need to learn better.
+    </p>
+    <p style="font-size: 0.78rem; color: var(--text-secondary);">
+      &copy; 2026 Studiora Inc. All rights reserved. 
+      <span>Build by Aditi Sahu. </span>
+    </p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports & Analytics — Studiora</title>
+  <link rel="icon" type="image/png" href="/assets/studiora-logo.png" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="app-main">
+      <div id="header-container"></div>
+
+      <main class="content-wrapper animate-fade-in">
+        <div style="margin-bottom: 2rem;">
+          <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-dark);">Performance &amp; Reports</h1>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+            Inspect your quiz attempts, accuracy trends, and review detailed answer explanations.
+          </p>
+        </div>
+
+        <!-- Main Performance Card (Panel 8 in Reference) -->
+        <div class="card" style="padding: 1.75rem; margin-bottom: 2rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+            <div>
+              <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-dark);">Main Performance</h3>
+              <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.15rem;">Visual progress across chronological test attempts</p>
+            </div>
+            <span class="badge badge-completed">Learning Progression</span>
+          </div>
+          <canvas id="reports-growth-canvas" style="width: 100%; display: block;"></canvas>
+        </div>
+
+        <!-- 4 Summary Metric Cards (Panel 8 in Reference) -->
+        <section class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+          <div class="stat-card">
+            <div class="stat-badge">AVG</div>
+            <div class="stat-content">
+              <span class="stat-title">Average Score</span>
+              <div class="stat-value" id="report-avg-score">0%</div>
+              <div class="stat-sub">Across all quizzes</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-badge">NUM</div>
+            <div class="stat-content">
+              <span class="stat-title">Quizzes Completed</span>
+              <div class="stat-value" id="report-total-attempts">0</div>
+              <div class="stat-sub">Recorded sessions</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-badge">BEST</div>
+            <div class="stat-content">
+              <span class="stat-title">Highest Score</span>
+              <div class="stat-value" id="report-highest-score">0%</div>
+              <div class="stat-sub">Personal record</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-badge">ACC</div>
+            <div class="stat-content">
+              <span class="stat-title">Accuracy Rate</span>
+              <div class="stat-value" id="report-accuracy-rate">0%</div>
+              <div class="stat-sub">Across all questions</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Past Attempts History Table -->
+        <div class="card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+            <div>
+              <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-dark);">Past Quiz Attempts</h3>
+              <p style="font-size: 0.82rem; color: var(--text-secondary);">Review previous results and analyze explanations</p>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+                  <th style="padding: 0.75rem 1rem;">Quiz Assessment</th>
+                  <th style="padding: 0.75rem 1rem;">Date Attempted</th>
+                  <th style="padding: 0.75rem 1rem;">Score</th>
+                  <th style="padding: 0.75rem 1rem;">Accuracy</th>
+                  <th style="padding: 0.75rem 1rem;">Time Spent</th>
+                  <th style="padding: 0.75rem 1rem; text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="attempts-table-body">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+
+          <div id="attempts-empty-state" style="display: none; text-align: center; padding: 3rem 1.5rem;">
+            <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--light-teal); color: var(--primary-dark-teal); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.85rem;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            </div>
+            <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-dark);">No quiz attempts recorded yet</h4>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Take a quiz to start building your analytics profile.</p>
+          </div>
+        </div>
+
+        <!-- Attempt Review Modal -->
+        <div class="modal-overlay" id="attempt-detail-modal">
+          <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+              <div>
+                <span class="badge badge-uploaded" style="margin-bottom: 0.35rem;">Assessment Review</span>
+                <h3 class="modal-title" id="attempt-modal-title">Quiz Attempt Breakdown</h3>
+              </div>
+              <button class="modal-close" onclick="closeAttemptModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+              <div style="background: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+                <div>
+                  <span style="font-size: 0.82rem; color: var(--text-secondary);">Result:</span>
+                  <span id="attempt-modal-score" style="font-weight: 800; font-size: 1.1rem; color: var(--primary-dark-teal); margin-left: 0.4rem;">0 / 0</span>
+                </div>
+                <span class="badge badge-completed">Recorded</span>
+              </div>
+
+              <!-- Breakdown list -->
+              <div id="attempt-breakdown-container"></div>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-secondary btn-sm" onclick="closeAttemptModal()">Close Review</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/reports.js"></script>
+</body>
+</html>

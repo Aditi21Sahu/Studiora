@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Studiora</title>
+  <link rel="icon" type="image/png" href="/assets/studiora-logo.png" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="auth-split-wrapper">
+    <!-- Left Dark Teal Branding Hero (Panel 1) -->
+    <div class="auth-left-brand">
+      <div class="auth-brand-header">
+        <img src="/assets/studiora-logo.png" alt="Studiora Logo" />
+        <span class="auth-brand-name">Studiora</span>
+      </div>
+
+      <div class="auth-left-content">
+        <h1 class="auth-hero-h1">
+          Unlock Smarter Learning.<br />
+          <span>Remember Better.</span>
+        </h1>
+        <p class="auth-hero-desc">
+          Turn your study material into simple notes, interactive quizzes &amp; real progress with the power of AI.
+        </p>
+        <div class="auth-illustration-wrap">
+          <img src="/assets/studiora-student.png" alt="Studiora Student Studying" />
+        </div>
+      </div>
+
+      <div style="font-size: 0.78rem; color: var(--text-on-dark-muted);">
+        &copy; 2026 Studiora Inc. All rights reserved. <span> Build by Aditi Sahu. </span>
+      </div>
+    </div>
+
+    <!-- Right Login Card -->
+    <div class="auth-right-form">
+      <div class="auth-form-card">
+        <div style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.35rem;">
+            Welcome to Studiora
+          </h2>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            Sign in to continue your learning journey
+          </p>
+        </div>
+
+        <!-- Error Alert -->
+        <div id="error-message" style="display: none; background-color: var(--error-bg); color: var(--error); border: 1px solid var(--error); border-radius: var(--radius-md); padding: 0.75rem 1rem; font-size: 0.85rem; margin-bottom: 1.25rem;"></div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="email">Email address</label>
+            <div style="position: relative;">
+              <input type="email" id="email" class="form-control" placeholder="you@example.com" required autocomplete="email" style="padding-left: 2.4rem;" />
+              <svg style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <div style="position: relative;">
+              <input type="password" id="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password" style="padding-left: 2.4rem; padding-right: 2.4rem;" />
+              <svg style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <button type="button" class="toggle-password-btn" data-target="password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0.25rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; font-size: 0.85rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-secondary);">
+              <input type="checkbox" id="remember-me" style="accent-color: var(--primary-dark-teal);" />
+              <span>Remember me</span>
+            </label>
+            <a href="/forgot-password.html" style="font-weight: 600; color: var(--primary-dark-teal);">Forgot password?</a>
+          </div>
+
+          <button type="submit" id="submit-btn" class="btn btn-gold" style="width: 100%;">
+            Login
+          </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.75rem; font-size: 0.85rem; color: var(--text-secondary);">
+          Don't have an account? 
+          <a href="/register.html" style="font-weight: 700; color: var(--primary-dark-teal);">Sign Up</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

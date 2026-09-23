@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Material — Studiora</title>
+  <link rel="icon" type="image/png" href="/assets/studiora-logo.png" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="app-main">
+      <div id="header-container"></div>
+
+      <main class="content-wrapper animate-fade-in">
+        <!-- Title & Subtitle (Panel 3 in Reference) -->
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem;">
+          <div>
+            <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-dark);">My Study Material</h1>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+              Upload your learning material or add online content to automatically generate study aids.
+            </p>
+          </div>
+        </div>
+
+        <!-- 2 Column Input Section (Panel 3 in Reference) -->
+        <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 1.5rem; margin-bottom: 2.5rem;">
+          <!-- Left: Upload Learning Material Card -->
+          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark);">Upload Study Material</h3>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem;">Select textbooks, lecture slides, notes, or videos</p>
+              </div>
+              
+              <div class="dropzone" id="upload-dropzone">
+                <div class="dropzone-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                </div>
+                <div class="dropzone-title">Upload your learning material</div>
+                <div class="dropzone-desc" style="margin-bottom: 1rem;">Drag &amp; drop files here</div>
+                <button type="button" class="btn btn-primary btn-sm" style="pointer-events: none;">
+                  Browse Files
+                </button>
+                <input type="file" id="file-input" style="display: none;" accept=".pdf,.docx,.doc,.txt,.mp4,.mov,.webm" />
+                
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem;">
+                  Supported formats: PDF &bull; DOC &bull; DOCX &bull; TXT &bull; MP4
+                </div>
+              </div>
+
+              <!-- Upload Progress Indicator -->
+              <div id="upload-progress-wrap" style="display: none; margin-top: 1rem; padding: 0.75rem 1rem; background: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-md);">
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--primary-dark-teal); display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="animate-pulse-glow">&bull;</span>
+                  <span id="upload-progress-text">Processing file...</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+              <input type="text" id="upload-title-input" class="form-control" placeholder="Optional custom title (e.g. Science Chapter 4)" />
+            </div>
+          </div>
+
+          <!-- Right: Add Online Content Card -->
+          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark);">Add Online Content</h3>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem;">Paste YouTube / Video / Course URL</p>
+              </div>
+
+              <div style="padding: 1rem 0;">
+                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1.25rem;">
+                  Studiora automatically extracts the video captions or transcribes the audio using AI to synthesize detailed study notes.
+                </p>
+
+                <form id="url-submit-form">
+                  <div class="form-group">
+                    <label class="form-label" for="youtube-url-input">Video URL</label>
+                    <input type="url" id="youtube-url-input" class="form-control" placeholder="https://www.youtube.com/watch?v=..." required />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="youtube-title-input">Optional Topic Title</label>
+                    <input type="text" id="youtube-title-input" class="form-control" placeholder="e.g. Animal Nutrition Class 7" />
+                  </div>
+                  <button type="submit" id="youtube-submit-btn" class="btn btn-primary" style="width: 100%;">
+                    Process Content
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Uploaded Materials List (Panel 3 in Reference) -->
+        <div class="card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+            <div>
+              <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-dark);">Uploaded Materials</h3>
+              <p style="font-size: 0.82rem; color: var(--text-secondary);">Manage your learning assets</p>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+                  <th style="padding: 0.75rem 1rem;">Material Title</th>
+                  <th style="padding: 0.75rem 1rem;">Status</th>
+                  <th style="padding: 0.75rem 1rem;">Added On</th>
+                  <th style="padding: 0.75rem 1rem; text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="materials-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <div id="materials-empty-state" style="display: none; text-align: center; padding: 3rem 1.5rem;">
+            <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--light-teal); color: var(--primary-dark-teal); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.85rem;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            </div>
+            <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-dark);">No materials added yet</h4>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Upload a document or paste a YouTube link above to begin.</p>
+          </div>
+        </div>
+
+        <!-- Preview Modal -->
+        <div class="modal-overlay" id="preview-modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title" id="preview-modal-title">Material Preview</h3>
+              <button class="modal-close" onclick="closePreviewModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+              <pre id="preview-modal-text" style="white-space: pre-wrap; font-family: inherit; font-size: 0.88rem; color: var(--text-dark); line-height: 1.6;"></pre>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary btn-sm" onclick="closePreviewModal()">Close</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/material.js"></script>
+</body>
+</html>

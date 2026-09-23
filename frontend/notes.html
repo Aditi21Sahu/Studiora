@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Notes — Studiora</title>
+  <link rel="icon" type="image/png" href="/assets/studiora-logo.png" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="app-main">
+      <div id="header-container"></div>
+
+      <main class="content-wrapper animate-fade-in">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+          <div>
+            <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-dark);">Study Notes</h1>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+              Review AI-generated summaries, key concepts, and revision checklists.
+            </p>
+          </div>
+          <a href="/study-material.html" class="btn btn-primary btn-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Generate New Notes
+          </a>
+        </div>
+
+        <!-- Notes Grid -->
+        <div id="notes-grid" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="notes-empty-state" class="card" style="display: none; text-align: center; padding: 4rem 2rem;">
+          <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: var(--light-teal); color: var(--primary-dark-teal); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          </div>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem;">No study notes yet</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 420px; margin: 0 auto 1.5rem;">
+            Upload your first textbook, PDF slides or YouTube link to let AI synthesize comprehensive revision notes.
+          </p>
+          <a href="/study-material.html" class="btn btn-primary">Go to Study Materials</a>
+        </div>
+
+        <!-- Note Viewer Modal -->
+        <div class="modal-overlay" id="note-viewer-modal">
+          <div class="modal-content" style="max-width: 860px;">
+            <div class="modal-header">
+              <div>
+                <span class="badge badge-uploaded" style="margin-bottom: 0.35rem;">Structured Study Guide</span>
+                <h3 class="modal-title" id="modal-note-title">Study Note</h3>
+              </div>
+              <button class="modal-close" onclick="closeNoteViewer()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+              <!-- Summary Section -->
+              <div style="background: var(--light-cream); border-left: 4px solid var(--primary-dark-teal); padding: 1.25rem; border-radius: 0 var(--radius-md) var(--radius-md) 0; margin-bottom: 2rem;">
+                <h4 style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: var(--primary-dark-teal); letter-spacing: 0.05em; margin-bottom: 0.4rem;">Overview &amp; Summary</h4>
+                <p id="modal-note-summary" style="font-size: 0.95rem; color: var(--text-dark); line-height: 1.6;"></p>
+              </div>
+
+              <!-- Key Concepts / Points -->
+              <div style="margin-bottom: 2rem;">
+                <h4 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--gold);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  Key Concepts
+                </h4>
+                <ul id="modal-note-keypoints" style="list-style: none; padding-left: 0;"></ul>
+              </div>
+
+              <!-- Detailed Subsections -->
+              <div style="margin-bottom: 2rem;">
+                <h4 style="font-size: 1.15rem; font-weight: 700; color: var(--primary-dark-teal); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                  Detailed Topic Breakdown
+                </h4>
+                <div id="modal-note-sections"></div>
+              </div>
+
+              <!-- Important Terms -->
+              <div style="margin-bottom: 2rem;">
+                <h4 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.85rem;">Key Vocabulary &amp; Terms</h4>
+                <div id="modal-note-terms" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;"></div>
+              </div>
+
+              <!-- Revision Points / Checklist -->
+              <div>
+                <h4 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.75rem;">Quick Revision Checklist</h4>
+                <div id="modal-note-revision" style="background: var(--card-white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem;"></div>
+              </div>
+            </div>
+
+            <div class="modal-footer" style="justify-content: space-between;">
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-outline btn-sm" id="download-pdf-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  Download PDF
+                </button>
+                <button class="btn btn-outline btn-sm" id="download-txt-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  Download TXT
+                </button>
+              </div>
+
+              <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-primary btn-sm" id="quiz-from-note-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                  Take Practice Quiz
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="closeNoteViewer()">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/notes.js"></script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quizzes — Studiora</title>
+  <link rel="icon" type="image/png" href="/assets/studiora-logo.png" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="app-main">
+      <div id="header-container"></div>
+
+      <main class="content-wrapper animate-fade-in">
+        <!-- 1. Quiz List Section -->
+        <div id="quiz-list-section">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+            <div>
+              <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-dark);">Practice Quizzes</h1>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                Reinforce knowledge with active recall and instantaneous pedagogical feedback.
+              </p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openGenerateModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Create New Quiz
+            </button>
+          </div>
+
+          <div id="quizzes-grid" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div id="quizzes-empty-state" class="card" style="display: none; text-align: center; padding: 4rem 2rem;">
+            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: var(--light-teal); color: var(--primary-dark-teal); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem;">No quizzes created yet</h3>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 420px; margin: 0 auto 1.5rem;">
+              Generate your first interactive quiz based on any study notes you have created.
+            </p>
+            <button class="btn btn-primary" onclick="openGenerateModal()">Generate a Quiz</button>
+          </div>
+        </div>
+
+        <!-- 2. Interactive Quiz Runner Section (Panels 4, 5, 6 in Reference) -->
+        <div id="quiz-runner-section" style="display: none; max-width: 840px; margin: 0 auto;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark);" id="quiz-title-header">
+              Quiz Page
+            </h2>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="padding: 0.35rem 0.85rem; background: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-full); font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; color: var(--text-dark);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                <span id="quiz-timer">00:00</span>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="exitQuizRunner()">
+                &times; Exit
+              </button>
+            </div>
+          </div>
+
+          <!-- Gold Progress Bar with Percentage (Panel 4) -->
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="quiz-progress-bar-wrap" style="flex: 1; margin-bottom: 0;">
+              <div id="quiz-progress-bar-fill" class="quiz-progress-bar-fill" style="width: 20%;"></div>
+            </div>
+            <span id="quiz-progress-percent-label" style="font-size: 0.85rem; font-weight: 700; color: var(--gold); min-width: 40px; text-align: right;">20%</span>
+          </div>
+
+          <!-- Question Card -->
+          <div class="card" style="padding: 2.25rem; margin-bottom: 1.5rem;">
+            <div id="quiz-progress-text" style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 0.6rem;">
+              Question 1 of 5
+            </div>
+            <h2 id="quiz-question-text" style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark); line-height: 1.4; margin-bottom: 1.75rem;">
+              Loading question...
+            </h2>
+
+            <!-- Options Container (4 options with clean text) -->
+            <div id="quiz-options-container" style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+              <!-- Handled by quiz.js -->
+            </div>
+
+            <!-- Instant Pedagogical Explanation Box (Panel 6) -->
+            <div id="quiz-explanation-box" style="display: none; margin-bottom: 1.5rem;">
+              <!-- Handled by quiz.js -->
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border);">
+              <button id="quiz-prev-btn" class="btn btn-outline btn-sm" onclick="prevQuestion()" disabled>
+                &larr; Previous
+              </button>
+              <button id="quiz-next-btn" class="btn btn-primary" onclick="nextQuestion()" disabled>
+                Continue &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Quiz Result Section (Panel 7 in Reference) -->
+        <div id="quiz-result-section" style="display: none; max-width: 800px; margin: 1.5rem auto;">
+          <div class="card" style="padding: 2.5rem 2rem;">
+            <div style="margin-bottom: 2rem;">
+              <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-dark);">
+                Quiz Complete! <span style="font-weight: 500; font-size: 1.4rem; color: var(--text-secondary);">A fantastic score.</span>
+              </h2>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 2rem; align-items: center; padding-bottom: 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem;">
+              <!-- Circular Score Gauge (Panel 7) -->
+              <div style="text-align: center;">
+                <div class="score-circle-gauge" id="result-score-gauge">
+                  80%
+                </div>
+                <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-dark);">Overall Mastery</div>
+              </div>
+
+              <!-- Performance Summary Table -->
+              <div style="background-color: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem;">
+                <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1rem;">Your Performance</h4>
+                <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.88rem;">
+                  <span style="color: var(--text-secondary);">Score</span>
+                  <strong id="result-score-fraction" style="color: var(--text-dark);">0 / 0</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.88rem;">
+                  <span style="color: var(--text-secondary);">Time Taken</span>
+                  <strong id="result-time-taken" style="color: var(--text-dark);">0m 0s</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.88rem;">
+                  <span style="color: var(--text-secondary);">Result Status</span>
+                  <strong style="color: var(--success);">Passed</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mistakes Review List (Panel 7) -->
+            <div style="margin-bottom: 2rem;">
+              <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1rem;">
+                Questions Mistakes &amp; Review
+              </h3>
+              <div id="result-mistakes-list"></div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+              <button class="btn btn-outline" onclick="exitQuizRunner()">
+                Back to Quizzes
+              </button>
+              <a href="/reports.html" class="btn btn-primary">
+                View Full Reports &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Generate Quiz Modal -->
+        <div class="modal-overlay" id="generate-quiz-modal">
+          <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+              <h3 class="modal-title">Generate AI Practice Quiz</h3>
+              <button class="modal-close" onclick="closeGenerateModal()">&times;</button>
+            </div>
+            <form onsubmit="handleGenerateQuizSubmit(event)">
+              <div class="modal-body">
+                <div class="form-group">
+                  <label class="form-label" for="gen-note-select">Select Study Note</label>
+                  <select id="gen-note-select" class="form-control" required>
+                    <option value="">Choose a study note...</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="gen-count-select">Number of Questions</label>
+                  <select id="gen-count-select" class="form-control">
+                    <option value="5" selected>5 Questions (Quick Check)</option>
+                    <option value="10">10 Questions (Standard Quiz)</option>
+                    <option value="15">15 Questions (Deep Practice)</option>
+                    <option value="20">20 Questions (Comprehensive Exam)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="gen-difficulty-select">Difficulty Level</label>
+                  <select id="gen-difficulty-select" class="form-control">
+                    <option value="Easy">Easy (Fundamental concepts)</option>
+                    <option value="Medium" selected>Medium (Standard curriculum)</option>
+                    <option value="Hard">Hard (Deep critical thinking)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeGenerateModal()">Cancel</button>
+                <button type="submit" id="gen-submit-btn" class="btn btn-primary btn-sm">Generate Quiz</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/quiz.js"></script>
+</body>
+</html>
