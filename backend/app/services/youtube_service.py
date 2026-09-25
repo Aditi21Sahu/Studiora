@@ -567,6 +567,18 @@ class YouTubeService:
             )
             combined_errors = " ".join(filter(None, [meta_err_str or "", err_ext or "", err1 or "", err2 or "", err3 or "", err4 or ""])).lower()
 
+            # If an external transcript service was configured and reported a specific error, surface it clearly
+            if err_ext:
+                err_ext_lower = err_ext.lower()
+                if any(x in err_ext_lower for x in ["401", "403", "unauthorized", "invalid", "auth"]):
+                    raise ValueError("External transcript API authentication failed. Please verify your YOUTUBE_TRANSCRIPT_API_KEY in Render.")
+                elif any(x in err_ext_lower for x in ["429", "quota", "rate limit"]):
+                    raise ValueError("External transcript API monthly quota or rate limit exceeded. Please check your Supadata plan or upload the video file directly.")
+                elif any(x in err_ext_lower for x in ["404", "not found"]):
+                    raise ValueError("Transcript or captions were not found for this video. Please upload the video file directly.")
+                elif any(x in err_ext_lower for x in ["400", "bad request", "invalid-request"]):
+                    raise ValueError(f"External transcript request was invalid: {err_ext}")
+
             if any(k in combined_errors for k in ["private video", "video unavailable", "removed", "not available", "sign in if you've been granted access", "agerestricted"]):
                 raise ValueError("This YouTube video is unavailable, private, or age-restricted. Please verify the URL or upload the video file directly.")
             elif any(k in combined_errors for k in ["transcriptsdisabled", "notranscriptfound", "no subtitle", "no captiontracks"]):

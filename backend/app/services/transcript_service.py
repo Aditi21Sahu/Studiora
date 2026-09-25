@@ -61,18 +61,30 @@ class TranscriptService:
         """
         api_key = cls.get_api_key()
         if not api_key:
+            _safe_log("[TranscriptService] YOUTUBE_TRANSCRIPT_API_KEY is not configured in environment.")
             return None, None, False, "External transcript API key not configured"
 
-        _safe_log(f"[TranscriptService] Querying external transcript API (Supadata) for video ID: {video_id}...")
-        logger.info("Calling external transcript API for video: %s", video_id)
+        # Safely log presence of environment variable without revealing the key
+        masked_key = f"{api_key[:4]}...{api_key[-4:]}" if len(api_key) > 8 else "***"
+        _safe_log(f"[TranscriptService] External API Key verified in environment (length: {len(api_key)}, masked: {masked_key})")
+
+        # Construct the canonical YouTube URL required by Supadata
+        canonical_url = f"https://www.youtube.com/watch?v={video_id}" if video_id else url
+        if not canonical_url:
+            return None, None, False, "No valid video URL or video ID provided"
+
+        _safe_log(f"[TranscriptService] Querying Supadata: GET {cls.SUPADATA_TRANSCRIPT_URL}")
+        _safe_log(f"[TranscriptService] Request Parameters: url={canonical_url}, text=false")
+        logger.info("Calling Supadata transcript API with canonical URL: %s", canonical_url)
 
         headers = {
             "x-api-key": api_key,
             "User-Agent": "Studiora-Cloud/1.0"
         }
 
+        # Supadata documentation explicitly requires the full media link in the 'url' parameter
         params = {
-            "videoId": video_id,
+            "url": canonical_url,
             "text": "false"  # Retrieve structured JSON segments
         }
 
@@ -84,9 +96,31 @@ class TranscriptService:
                 timeout=cls.REQUEST_TIMEOUT_SECONDS
             )
 
+            _safe_log(f"[TranscriptService] Supadata HTTP Status: {response.status_code}")
+
             # Check HTTP status
-            if response.status_code == 200:
-                data = response.json()
+            if response.status_code in (200, 202):
+                data = response.json() if response.content else {}
+
+                # Handle async jobId if Supadata queues processing
+                job_id = data.get("jobId")
+                if job_id and not data.get("content"):
+                    _safe_log(f"[TranscriptService] Supadata queued async job: {job_id}. Polling for completion...")
+                    import time
+                    job_url = f"https://api.supadata.ai/v1/transcript/{job_id}"
+                    for attempt in range(6):  # Poll up to 6 times (~9 seconds)
+                        time.sleep(1.5)
+                        job_res = requests.get(job_url, headers=headers, timeout=cls.REQUEST_TIMEOUT_SECONDS)
+                        if job_res.status_code == 200:
+                            job_data = job_res.json()
+                            if job_data.get("content") or job_data.get("text"):
+                                data = job_data
+                                break
+                            elif job_data.get("status") in ("failed", "error"):
+                                msg = f"Supadata async job failed: {job_data.get('error') or job_data.get('message')}"
+                                _safe_log(f"[TranscriptService] {msg}")
+                                return None, None, False, msg
+
                 raw_snippets: List[str] = []
 
                 # Format 1: data.content is a list of segment dicts [{"text": "...", "start": ...}]
@@ -112,33 +146,47 @@ class TranscriptService:
                 is_gen = bool(data.get("is_generated", False) or data.get("ai_fallback", False))
 
                 if raw_snippets:
-                    _safe_log(f"[TranscriptService] External API SUCCESS: retrieved {len(raw_snippets)} segments (lang: {lang})")
+                    _safe_log(f"[TranscriptService] Supadata SUCCESS: retrieved {len(raw_snippets)} segments (lang: {lang})")
                     return raw_snippets, lang, is_gen, None
                 else:
                     msg = "External transcript API returned 200 OK but content was empty."
+                    _safe_log(f"[TranscriptService] {msg} Safe Response: {response.text[:200]}")
                     logger.warning("[TranscriptService] %s Response: %s", msg, response.text[:200])
                     return None, lang, is_gen, msg
 
-            elif response.status_code == 401:
-                msg = "External transcript API key is invalid, unauthorized, or expired."
-                _safe_log(f"[TranscriptService] WARNING: {msg}")
-                logger.warning("[TranscriptService] HTTP 401: %s", response.text)
+            elif response.status_code == 206:
+                msg = f"External transcript API indicated no transcript tracks available (HTTP 206): {response.text[:200]}"
+                _safe_log(f"[TranscriptService] {msg}")
+                logger.info("[TranscriptService] HTTP 206: %s", response.text)
+                return None, None, False, msg
+
+            elif response.status_code == 400:
+                msg = f"External transcript API returned HTTP 400 (Bad Request): {response.text[:200]}"
+                _safe_log(f"[TranscriptService] ERROR: {msg}")
+                logger.warning("[TranscriptService] HTTP 400: %s", response.text)
+                return None, None, False, msg
+
+            elif response.status_code in (401, 403):
+                msg = f"External transcript API key unauthorized or invalid (HTTP {response.status_code}): {response.text[:200]}"
+                _safe_log(f"[TranscriptService] ERROR: {msg}")
+                logger.warning("[TranscriptService] HTTP %d: %s", response.status_code, response.text)
                 return None, None, False, msg
 
             elif response.status_code == 429:
-                msg = "External transcript API monthly quota limit reached (429 Too Many Requests)."
-                _safe_log(f"[TranscriptService] WARNING: {msg}")
+                msg = f"External transcript API monthly quota or rate limit exceeded (HTTP 429): {response.text[:200]}"
+                _safe_log(f"[TranscriptService] ERROR: {msg}")
                 logger.warning("[TranscriptService] HTTP 429: %s", response.text)
                 return None, None, False, msg
 
             elif response.status_code == 404:
-                msg = f"External transcript API could not find transcripts or captions for video {video_id}."
+                msg = f"External transcript API: video or transcript not found (HTTP 404): {response.text[:200]}"
                 _safe_log(f"[TranscriptService] {msg}")
                 logger.info("[TranscriptService] HTTP 404: %s", response.text)
                 return None, None, False, msg
 
             else:
                 msg = f"External transcript API returned HTTP {response.status_code}: {response.text[:200]}"
+                _safe_log(f"[TranscriptService] {msg}")
                 logger.warning("[TranscriptService] %s", msg)
                 return None, None, False, msg
 
@@ -217,8 +265,9 @@ class TranscriptService:
         is_gen = False
         err = None
 
+        canonical_url = f"https://www.youtube.com/watch?v={video_id}"
         if cls.get_api_key():
-            snippets, lang, gen, api_err = cls.fetch_from_external_api(video_id, url_or_video_id)
+            snippets, lang, gen, api_err = cls.fetch_from_external_api(video_id, canonical_url)
             if snippets:
                 raw_snippets = snippets
                 selected_lang = lang or "unknown"
