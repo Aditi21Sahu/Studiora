@@ -21,3 +21,4 @@ class Note(Base):
     user = relationship("User", back_populates="notes")
     material = relationship("Material", back_populates="notes")
     quizzes = relationship("Quiz", back_populates="note")
+    test_papers = relationship("TestPaper", back_populates="note")

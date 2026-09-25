@@ -19,3 +19,5 @@ class User(Base):
     quizzes = relationship("Quiz", back_populates="user", cascade="all, delete-orphan")
     attempts = relationship("QuizAttempt", back_populates="user", cascade="all, delete-orphan")
     activities = relationship("Activity", back_populates="user", cascade="all, delete-orphan")
+    test_papers = relationship("TestPaper", back_populates="user", cascade="all, delete-orphan")
+    test_attempts = relationship("TestAttempt", back_populates="user", cascade="all, delete-orphan")

@@ -32,11 +32,12 @@ class RecentAttemptItem(BaseModel):
     id: int
     quiz_id: int
     quiz_title: str
-    score: int
+    score: float
     total_questions: int
     percentage: float
     time_taken_seconds: int
     created_at: datetime
+    attempt_type: Optional[str] = "quiz"
 
 class ReportsSummary(BaseModel):
     average_score: float

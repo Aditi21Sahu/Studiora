@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Paper — Studiora</title>
+  <link rel="icon" type="image/png" href="/assets/studiora-logo.png" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="app-container">
+    <div id="sidebar-container"></div>
+
+    <div class="app-main">
+      <div id="header-container"></div>
+
+      <main class="content-wrapper animate-fade-in">
+        
+        <!-- ======================================================== -->
+        <!-- 1. Test Papers List Section                              -->
+        <!-- ======================================================== -->
+        <div id="test-list-section">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+            <div>
+              <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-dark);">Test Paper</h1>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                Create a 25-mark test from your study material and test your understanding.
+              </p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="handleGenerateButtonClick()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Generate 25-Mark Test
+            </button>
+          </div>
+
+          <div id="tests-grid" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <!-- Dynamically populated by test-paper.js -->
+          </div>
+
+          <div id="tests-empty-state" class="card" style="display: none; text-align: center; padding: 4rem 2rem;">
+            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: var(--light-teal); color: var(--primary-dark-teal); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem;">No test papers generated yet</h3>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 440px; margin: 0 auto 1.5rem;">
+              Create a 25-mark test from your study material and test your understanding.
+            </p>
+            <button class="btn btn-primary" onclick="handleGenerateButtonClick()">Generate 25-Mark Test</button>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- 2. Test Start / Confirmation Screen                      -->
+        <!-- ======================================================== -->
+        <div id="test-start-section" style="display: none; max-width: 780px; margin: 0 auto;">
+          <div class="card" style="padding: 2.5rem 2rem;">
+            <div style="margin-bottom: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;">
+              <span class="badge badge-completed" style="margin-bottom: 0.5rem;">Timed Assessment</span>
+              <h2 id="start-test-title" style="font-size: 1.6rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.35rem;">
+                25-Mark Test Paper
+              </h2>
+              <p style="font-size: 0.88rem; color: var(--text-secondary);">
+                Verify your knowledge under formal test conditions with section-wise grading and AI concept evaluation.
+              </p>
+            </div>
+
+            <!-- Test Metadata Badges -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+              <div style="background: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; text-align: center;">
+                <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; letter-spacing: 0.05em;">Questions</div>
+                <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary-dark-teal); margin-top: 0.2rem;">20 Questions</div>
+              </div>
+              <div style="background: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; text-align: center;">
+                <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; letter-spacing: 0.05em;">Maximum Marks</div>
+                <div style="font-size: 1.4rem; font-weight: 800; color: var(--gold); margin-top: 0.2rem;">25 Marks</div>
+              </div>
+              <div style="background: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; text-align: center;">
+                <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; letter-spacing: 0.05em;">Time Duration</div>
+                <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-dark); margin-top: 0.2rem;">30 Minutes</div>
+              </div>
+            </div>
+
+            <!-- Structure Breakdown Table -->
+            <div style="margin-bottom: 2rem;">
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.75rem;">Paper Blueprint</h4>
+              <div style="border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;">
+                <div style="display: flex; justify-content: space-between; padding: 0.75rem 1rem; background: var(--light-cream); border-bottom: 1px solid var(--border); font-size: 0.85rem;">
+                  <strong style="color: var(--text-dark);">SECTION A — Multiple Choice Questions</strong>
+                  <span style="font-weight: 700; color: var(--primary-dark-teal);">5 Qs &bull; 5 Marks</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.85rem;">
+                  <strong style="color: var(--text-dark);">SECTION B — True / False Statements</strong>
+                  <span style="font-weight: 700; color: var(--primary-dark-teal);">5 Qs &bull; 5 Marks</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.75rem 1rem; background: var(--light-cream); border-bottom: 1px solid var(--border); font-size: 0.85rem;">
+                  <strong style="color: var(--text-dark);">SECTION C — Fill in the Blanks</strong>
+                  <span style="font-weight: 700; color: var(--primary-dark-teal);">5 Qs &bull; 5 Marks</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.75rem 1rem; font-size: 0.85rem;">
+                  <strong style="color: var(--text-dark);">SECTION D — Descriptive Question Answers</strong>
+                  <span style="font-weight: 700; color: var(--gold);">5 Qs &bull; 10 Marks</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Instructions -->
+            <div style="background: var(--light-teal); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 2rem;">
+              <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--primary-dark-teal); margin-bottom: 0.4rem;">Important Instructions</h4>
+              <ul style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; margin-left: 1.25rem;">
+                <li>The 30-minute timer starts immediately once you click <strong>Start Test</strong>.</li>
+                <li>Your answers are automatically saved to the server as you type or pick options.</li>
+                <li>Refreshing the page will restore your test without resetting the 30-minute countdown.</li>
+                <li>When the timer reaches <strong>00:00</strong>, the test will be automatically submitted.</li>
+                <li>Descriptive answers in Section D are evaluated semantically by AI based on key concepts and explanation quality.</li>
+              </ul>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+              <button class="btn btn-outline" onclick="exitToTestList()">Back to Tests</button>
+              <button id="start-test-confirm-btn" class="btn btn-primary" onclick="beginTestExecution()">
+                Start Test &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- 3. Timed Test Runner Section                             -->
+        <!-- ======================================================== -->
+        <div id="test-runner-section" style="display: none; max-width: 900px; margin: 0 auto;">
+          <!-- Sticky Header Bar -->
+          <div style="position: sticky; top: 1rem; z-index: 20; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 4px 14px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <span class="badge badge-uploaded" style="font-size: 0.7rem; margin-bottom: 0.2rem;">25-Mark Examination</span>
+              <h3 id="runner-test-title" style="font-size: 1.05rem; font-weight: 700; color: var(--text-dark); margin: 0;">
+                Exam Title
+              </h3>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <!-- Persistent Timer Display -->
+              <div id="test-timer-badge" style="padding: 0.4rem 0.9rem; background: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-full); font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; gap: 0.45rem; color: var(--text-dark);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                <span id="test-timer-text">Time Remaining: 30:00</span>
+              </div>
+
+              <button class="btn btn-primary btn-sm" onclick="promptSubmitTest()">
+                Submit Test
+              </button>
+            </div>
+          </div>
+
+          <!-- Section Navigation Pills -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.25rem;">
+            <button class="btn btn-outline btn-sm section-tab-btn active" data-section="section-a" onclick="scrollToSection('section-a')">
+              Sec A: MCQs (1-5)
+            </button>
+            <button class="btn btn-outline btn-sm section-tab-btn" data-section="section-b" onclick="scrollToSection('section-b')">
+              Sec B: True/False (6-10)
+            </button>
+            <button class="btn btn-outline btn-sm section-tab-btn" data-section="section-c" onclick="scrollToSection('section-c')">
+              Sec C: Blanks (11-15)
+            </button>
+            <button class="btn btn-outline btn-sm section-tab-btn" data-section="section-d" onclick="scrollToSection('section-d')">
+              Sec D: Q&amp;A (16-20)
+            </button>
+          </div>
+
+          <!-- Question Cards Container -->
+          <div id="test-questions-container" style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Rendered by test-paper.js -->
+          </div>
+
+          <!-- Bottom Actions Bar -->
+          <div class="card" style="margin-top: 2rem; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span style="font-size: 0.85rem; color: var(--text-secondary);">Completion Status:</span>
+              <strong id="test-answered-counter" style="font-size: 0.95rem; color: var(--primary-dark-teal); margin-left: 0.4rem;">0 of 20 Answered</strong>
+            </div>
+            <button class="btn btn-primary" onclick="promptSubmitTest()">
+              Submit Test
+            </button>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- 4. Test Result & Mistake Analysis Section                -->
+        <!-- ======================================================== -->
+        <div id="test-result-section" style="display: none; max-width: 860px; margin: 1.5rem auto;">
+          <div class="card" style="padding: 2.5rem 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;">
+              <div>
+                <span class="badge badge-completed" style="margin-bottom: 0.4rem;">Evaluation Complete</span>
+                <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-dark);">
+                  Test Paper Result
+                </h2>
+                <p id="result-test-title" style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                  Paper Breakdown &amp; Concept Evaluation
+                </p>
+              </div>
+              <span id="result-submission-badge" class="badge badge-uploaded">
+                Submitted by student.
+              </span>
+            </div>
+
+            <!-- Score Summary Cards -->
+            <div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 2rem; align-items: center; padding-bottom: 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem;">
+              <div style="text-align: center;">
+                <div class="score-circle-gauge" id="result-score-gauge" style="margin: 0 auto 0.75rem;">
+                  0%
+                </div>
+                <div id="result-score-text" style="font-size: 1.2rem; font-weight: 800; color: var(--text-dark);">
+                  0 / 25 Marks
+                </div>
+                <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                  Time: <span id="result-time-taken">0m 0s</span> &bull; <span id="result-date">Today</span>
+                </div>
+              </div>
+
+              <!-- Section-wise Performance Cards -->
+              <div style="background-color: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem;">
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.85rem;">Section-Wise Breakdown</h4>
+                
+                <div style="display: flex; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;">
+                  <span style="color: var(--text-secondary);">MCQs:</span>
+                  <strong id="result-sec-a" style="color: var(--text-dark);">0 / 5</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;">
+                  <span style="color: var(--text-secondary);">True/False:</span>
+                  <strong id="result-sec-b" style="color: var(--text-dark);">0 / 5</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;">
+                  <span style="color: var(--text-secondary);">Fill in the Blanks:</span>
+                  <strong id="result-sec-c" style="color: var(--text-dark);">0 / 5</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.45rem 0; font-size: 0.85rem;">
+                  <span style="color: var(--text-secondary);">Short Answers:</span>
+                  <strong id="result-sec-d" style="color: var(--gold);">0 / 10</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mistakes & Review Section -->
+            <div style="margin-bottom: 2rem;">
+              <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 1rem;">
+                Detailed Question Review &amp; AI Feedback
+              </h3>
+              <div id="result-reviews-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Dynamically rendered -->
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+              <button class="btn btn-outline" onclick="exitToTestList()">Back to Tests</button>
+              <a href="/reports.html" class="btn btn-primary">View in Reports &rarr;</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- 5. Generate Test Modal                                   -->
+        <!-- ======================================================== -->
+        <div class="modal-overlay" id="generate-test-modal">
+          <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+              <h3 class="modal-title">Generate 25-Mark Test</h3>
+              <button class="modal-close" onclick="closeGenerateTestModal()">&times;</button>
+            </div>
+            <form onsubmit="handleGenerateTestSubmit(event)">
+              <div class="modal-body">
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                  Creates a balanced 20-question, 25-mark curriculum test strictly grounded in your study material with 5 MCQs, 5 True/False, 5 Fill in Blanks, and 5 Descriptive Questions.
+                </p>
+
+                <div class="form-group">
+                  <label class="form-label" for="gen-source-select">Select Study Material or Note</label>
+                  <select id="gen-source-select" class="form-control" required>
+                    <option value="">Choose material or note...</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="gen-custom-title">Custom Test Title (Optional)</label>
+                  <input type="text" id="gen-custom-title" class="form-control" placeholder="e.g. Science Chapter 7 Midterm Test" />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeGenerateTestModal()">Cancel</button>
+                <button type="submit" id="gen-test-submit-btn" class="btn btn-primary btn-sm">Generate 25-Mark Test</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Submit Confirmation Modal -->
+        <div class="modal-overlay" id="submit-confirm-modal">
+          <div class="modal-content" style="max-width: 480px;">
+            <div class="modal-header">
+              <h3 class="modal-title">Submit Test Paper?</h3>
+              <button class="modal-close" onclick="closeSubmitConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p id="submit-confirm-message" style="font-size: 0.9rem; color: var(--text-dark); line-height: 1.5;">
+                Are you sure you want to finish and submit your test?
+              </p>
+              <div id="submit-unanswered-warning" style="display: none; margin-top: 1rem; padding: 0.75rem 1rem; background: var(--light-cream); border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.82rem; color: var(--text-secondary);">
+                ⚠️ Unanswered questions will receive 0 marks.
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="closeSubmitConfirmModal()">Keep Working</button>
+              <button type="button" id="confirm-submit-btn" class="btn btn-primary btn-sm" onclick="executeTestSubmission('manual')">
+                Yes, Submit Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/layout.js"></script>
+  <script src="/js/test-paper.js"></script>
+</body>
+</html>

@@ -25,10 +25,16 @@
                 Reinforce knowledge with active recall and instantaneous pedagogical feedback.
               </p>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="openGenerateModal()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              Create New Quiz
-            </button>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <a href="/test-papers.html" class="btn btn-outline btn-sm" title="Take a 25-mark timed curriculum test">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                Test Paper &rarr;
+              </a>
+              <button class="btn btn-primary btn-sm" onclick="openGenerateModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Create New Quiz
+              </button>
+            </div>
           </div>
 
           <div id="quizzes-grid" class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">

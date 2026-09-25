@@ -16,10 +16,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadQuizzes();
   await loadGenerationOptions();
 
-  // Check if note_id or material_id is present in query string to prefill generation modal
+  // Check if quiz_id, note_id, or material_id is present in query string
   const urlParams = new URLSearchParams(window.location.search);
+  const quizId = urlParams.get('quiz_id');
+  const materialId = urlParams.get('material_id');
   const noteId = urlParams.get('note_id');
-  if (noteId) {
+
+  if (quizId) {
+    startQuiz(parseInt(quizId, 10));
+  } else if (materialId) {
+    try {
+      const quiz = await api.post('/quizzes/generate', {
+        material_id: parseInt(materialId, 10),
+        question_count: 5
+      });
+      await loadQuizzes();
+      startQuiz(quiz.id);
+    } catch (err) {
+      Layout.showToast(err.message || 'Failed to generate quiz for material', 'error');
+    }
+  } else if (noteId) {
     openGenerateModal(noteId);
   }
 });

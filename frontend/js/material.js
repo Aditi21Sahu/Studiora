@@ -87,6 +87,14 @@ function renderMaterials(materials) {
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                 Generate Notes
               </button>
+              <button class="btn btn-primary btn-sm" onclick="handleGenerateQuizForMaterial(${mat.id}, this)" title="Generate AI Quiz">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                Quiz
+              </button>
+              <a href="/test-papers.html?material_id=${mat.id}" class="btn btn-primary btn-sm" title="Generate 25-Mark Test">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><line x1="16" y1="13" x2="8" y2="13"></line></svg>
+                25-Mark Test
+              </a>
             ` : ''}
             <button class="btn btn-outline btn-sm" onclick="openPreviewModal(${mat.id})" title="Preview Content">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -223,6 +231,34 @@ async function handleGenerateNotes(materialId, btn) {
     }
   }
 }
+
+async function handleGenerateQuizForMaterial(materialId, btn) {
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="animate-pulse-glow">Generating...</span>';
+  }
+
+  try {
+    const quiz = await api.post('/quizzes/generate', {
+      material_id: parseInt(materialId, 10),
+      question_count: 5
+    });
+    Layout.showToast('Quiz created successfully!', 'success');
+    setTimeout(() => {
+      window.location.href = `/quizzes.html?quiz_id=${quiz.id}`;
+    }, 500);
+  } catch (err) {
+    Layout.showToast(err.message || 'Failed to generate quiz', 'error');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        Quiz
+      `;
+    }
+  }
+}
+
 
 async function handleDeleteMaterial(id) {
   if (!confirm('Are you sure you want to delete this study material and all its generated notes?')) return;

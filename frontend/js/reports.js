@@ -155,6 +155,10 @@ function renderAttemptsTable(attempts) {
   if (emptyState) emptyState.style.display = 'none';
 
   container.innerHTML = attempts.map((att) => {
+    const isTest = att.attempt_type === 'test_paper';
+    const typeLabel = isTest ? 'Test Paper' : 'Quiz';
+    const typeBadgeClass = isTest ? 'badge-completed' : 'badge-uploaded';
+
     const pct = Math.round(att.percentage || 0);
     let pctBadge = 'badge-completed';
     if (pct < 50) pctBadge = 'badge-failed';
@@ -164,15 +168,24 @@ function renderAttemptsTable(attempts) {
     const secs = (att.time_taken_seconds || 0) % 60;
     const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
 
+    const rawDate = att.created_at ? new Date(att.created_at) : new Date();
+    const day = String(rawDate.getDate()).padStart(2, '0');
+    const month = String(rawDate.getMonth() + 1).padStart(2, '0');
+    const year = rawDate.getFullYear();
+    const dateFormatted = `${day}/${month}/${year}`;
+
     return `
       <tr style="border-bottom: 1px solid var(--border-light);">
         <td style="padding: 1.1rem 1rem;">
           <div style="font-weight: 600; font-size: 0.92rem; color: var(--text-dark);">
-            ${escapeHtml(att.quiz_title || 'Quiz Assessment')}
+            ${escapeHtml(att.quiz_title || (isTest ? 'Test Paper' : 'Quiz Assessment'))}
           </div>
         </td>
+        <td style="padding: 1.1rem 1rem;">
+          <span class="badge ${typeBadgeClass}">${typeLabel}</span>
+        </td>
         <td style="padding: 1.1rem 1rem; font-size: 0.85rem; color: var(--text-secondary);">
-          ${att.created_at ? new Date(att.created_at).toLocaleDateString() : 'Recent'}
+          ${dateFormatted}
         </td>
         <td style="padding: 1.1rem 1rem; font-weight: 600; font-size: 0.92rem;">
           ${att.score} / ${att.total_questions}
@@ -184,7 +197,7 @@ function renderAttemptsTable(attempts) {
           ${timeStr}
         </td>
         <td style="padding: 1.1rem 1rem; text-align: right;">
-          <button class="btn btn-outline btn-sm" onclick="openAttemptModal(${att.id})">
+          <button class="btn btn-outline btn-sm" onclick="openAttemptModal(${att.id}, '${att.attempt_type || 'quiz'}')">
             Review Answers
           </button>
         </td>
@@ -193,11 +206,79 @@ function renderAttemptsTable(attempts) {
   }).join('');
 }
 
-async function openAttemptModal(attemptId) {
+async function openAttemptModal(attemptId, attemptType = 'quiz') {
   const modal = document.getElementById('attempt-detail-modal');
   if (!modal) return;
 
   try {
+    if (attemptType === 'test_paper') {
+      const attempt = await api.get(`/tests/attempts/${attemptId}/result`);
+      document.getElementById('attempt-modal-title').textContent = attempt.test_title || '25-Mark Test Review';
+      document.getElementById('attempt-modal-score').textContent = `${attempt.score} / ${attempt.max_marks} (${Math.round(attempt.percentage)}%) • ${attempt.submission_message}`;
+
+      const breakdownContainer = document.getElementById('attempt-breakdown-container');
+      const questions = attempt.all_questions_review || [];
+
+      breakdownContainer.innerHTML = questions.map((q, idx) => {
+        const isCorrect = Boolean(q.is_correct);
+        const isPartial = q.marks_obtained > 0 && q.marks_obtained < q.max_marks;
+        const isSectionD = q.section && q.section.includes('Section D');
+        const evalStatus = q.ai_evaluation || (isCorrect ? 'Correct' : (isPartial ? 'Partially Correct' : 'Incorrect'));
+
+        return `
+          <div style="border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; background: var(--card-white);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary-dark-teal);">${escapeHtml(q.section || `Question ${idx + 1}`)}</span>
+              <span class="badge ${isCorrect ? 'badge-completed' : (isPartial ? 'badge-processing' : 'badge-failed')}">
+                ${isCorrect ? '✓ Correct' : (isPartial ? 'Partial' : 'Needs Review')} &bull; ${q.marks_obtained}/${q.max_marks} Marks
+              </span>
+            </div>
+            <p style="font-size: 0.95rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.75rem;">
+              Q${q.question_id}. ${escapeHtml(extractCleanText(q.question))}
+            </p>
+            <div style="font-size: 0.85rem; margin-bottom: 0.35rem;">
+              <span style="color: var(--text-secondary);">Your Answer: </span>
+              <strong style="color: ${isCorrect ? 'var(--success)' : (isPartial ? 'var(--gold)' : 'var(--danger)')};">
+                ${escapeHtml(extractCleanText(q.student_answer))}
+              </strong>
+            </div>
+            ${!isCorrect ? `
+              <div style="font-size: 0.85rem; margin-bottom: 0.35rem;">
+                <span style="color: var(--text-secondary);">Correct / Model Answer: </span>
+                <strong style="color: var(--success);">${escapeHtml(extractCleanText(q.correct_answer))}</strong>
+              </div>
+            ` : ''}
+            <div style="font-size: 0.85rem; margin-bottom: 0.35rem;">
+              <span style="color: var(--text-secondary);">Marks: </span>
+              <strong>${q.marks_obtained} / ${q.max_marks}</strong>
+            </div>
+            ${isSectionD ? `
+              <div style="font-size: 0.85rem; margin-bottom: 0.35rem;">
+                <span style="color: var(--text-secondary);">AI Evaluation: </span>
+                <span class="badge ${isCorrect ? 'badge-completed' : (isPartial ? 'badge-processing' : 'badge-failed')}">${escapeHtml(evalStatus)}</span>
+              </div>
+              ${q.important_keywords && q.important_keywords.length > 0 ? `
+                <div style="font-size: 0.82rem; margin-bottom: 0.35rem; color: var(--text-secondary);">
+                  <span>Important keywords: </span>
+                  ${q.important_keywords.map(kw => `<span class="badge badge-uploaded" style="margin-right: 0.25rem;">${escapeHtml(kw)}</span>`).join('')}
+                </div>
+              ` : ''}
+              <div style="font-size: 0.82rem; color: var(--text-dark); background: var(--light-cream); border: 1px solid var(--border); padding: 0.65rem 0.85rem; border-radius: var(--radius-md); margin-top: 0.5rem;">
+                <strong>Why you received ${q.marks_obtained}/${q.max_marks} marks: </strong>${escapeHtml(extractCleanText(q.feedback))}
+              </div>
+            ` : `
+              <div style="font-size: 0.82rem; color: var(--text-dark); background: var(--light-cream); border: 1px solid var(--border); padding: 0.65rem 0.85rem; border-radius: var(--radius-md); margin-top: 0.5rem;">
+                <strong>Explanation: </strong>${escapeHtml(extractCleanText(q.feedback))}
+              </div>
+            `}
+          </div>
+        `;
+      }).join('');
+
+      modal.classList.add('open');
+      return;
+    }
+
     const attempt = await api.get(`/quizzes/attempts/${attemptId}`);
     
     document.getElementById('attempt-modal-title').textContent = attempt.quiz_title || 'Quiz Review';

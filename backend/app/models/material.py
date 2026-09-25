@@ -21,3 +21,4 @@ class Material(Base):
     user = relationship("User", back_populates="materials")
     notes = relationship("Note", back_populates="material", cascade="all, delete-orphan")
     quizzes = relationship("Quiz", back_populates="material", cascade="all, delete-orphan")
+    test_papers = relationship("TestPaper", back_populates="material", cascade="all, delete-orphan")

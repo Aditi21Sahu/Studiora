@@ -26,7 +26,8 @@ from app.routes import (
     quizzes_router,
     reports_router,
     profile_router,
-    youtube_router
+    youtube_router,
+    tests_router
 )
 
 # Configure logging
@@ -73,6 +74,7 @@ app.include_router(quizzes_router, prefix=settings.API_V1_STR)
 app.include_router(reports_router, prefix=settings.API_V1_STR)
 app.include_router(profile_router, prefix=settings.API_V1_STR)
 app.include_router(youtube_router, prefix=settings.API_V1_STR)
+app.include_router(tests_router, prefix=settings.API_V1_STR)
 
 @app.get("/api/health")
 def health_check():
@@ -120,6 +122,10 @@ def redirect_quizzes():
 @app.get("/reports")
 def redirect_reports():
     return RedirectResponse(url="/reports.html")
+
+@app.get("/test-papers")
+def redirect_test_papers():
+    return RedirectResponse(url="/test-papers.html")
 
 # Mount static frontend directory at root /
 import os
