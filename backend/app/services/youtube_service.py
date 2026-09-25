@@ -13,6 +13,7 @@ import requests
 import yt_dlp
 from youtube_transcript_api import YouTubeTranscriptApi
 from app.ai.groq_service import groq_service
+from app.services.transcript_service import transcript_service
 
 logger = logging.getLogger("studiora.youtube")
 
@@ -95,42 +96,8 @@ class YouTubeService:
 
     @staticmethod
     def clean_transcript(raw_snippets: List[str]) -> str:
-        """
-        Convert raw caption snippets into clean, educational plain text:
-        - Decodes HTML entities (&amp;, &#39;, etc.)
-        - Removes bracketed sound descriptions [Music], [Applause], [Laughter]
-        - Removes parenthesized cues (applause), (cheering)
-        - Removes music notes (♪, ♫, #)
-        - Removes HTML / VTT tags (<font>, <c>, etc.)
-        - Removes timestamp cues (00:00:01, 1:23)
-        - Removes consecutive repeating lines
-        - Normalizes whitespace and line breaks
-        """
-        cleaned_segments = []
-        prev_line = ""
-
-        for item in raw_snippets:
-            if not item:
-                continue
-            text = html.unescape(str(item))
-            # Remove bracketed and parenthesized cues
-            text = re.sub(r'\[.*?\]', '', text)
-            text = re.sub(r'\(.*?\)', '', text)
-            # Remove music notes and symbols
-            text = re.sub(r'[♪♫#]+', '', text)
-            # Remove HTML/XML/VTT tags
-            text = re.sub(r'<[^>]+>', '', text)
-            # Remove standalone timestamps like 00:00 or 00:00:00
-            text = re.sub(r'^\s*\d{1,2}:\d{2}(?::\d{2})?\s*', '', text)
-            # Normalize internal whitespace
-            text = re.sub(r'\s+', ' ', text).strip()
-
-            if text and text.lower() != prev_line.lower():
-                cleaned_segments.append(text)
-                prev_line = text
-
-        full_text = ' '.join(cleaned_segments)
-        return re.sub(r'\s+', ' ', full_text).strip()
+        """Convert raw caption snippets into clean, educational plain text using transcript_service."""
+        return transcript_service.clean_transcript(raw_snippets)
 
     @classmethod
     def _fetch_via_transcript_api(cls, video_id: str) -> Tuple[List[str], str, bool, Optional[str]]:
@@ -544,12 +511,29 @@ class YouTubeService:
             meta_err_str = f"{type(meta_err).__name__}: {str(meta_err)}"
             logger.warning("yt-dlp metadata extraction warning for %s: %s", video_id, meta_err_str)
 
-        # 2. Strategy 1: Direct extraction via youtube-transcript-api
-        _safe_log("TRANSCRIPT RETRIEVAL (Strategy 1: youtube-transcript-api)...")
-        raw_snippets, selected_lang, is_gen, err1 = cls._fetch_via_transcript_api(video_id)
-        strategy_used = "youtube-transcript-api" if raw_snippets else None
+        # 2. Strategy 0: External Hosted Transcript API (Supadata AI)
+        # Primary strategy for cloud platforms (Render) to bypass YouTube datacenter IP blocking
+        strategy_used = None
+        raw_snippets = []
+        selected_lang = "unknown"
+        is_gen = False
+        err_ext = None
 
-        # 3. Strategy 2: Direct YouTube Innertube API via Android Client (20.10.38)
+        if transcript_service.get_api_key():
+            _safe_log("TRANSCRIPT RETRIEVAL (Strategy 0: External Hosted Transcript API - Supadata)...")
+            raw_snippets, selected_lang, is_gen, err_ext = transcript_service.fetch_from_external_api(video_id, clean_url)
+            if raw_snippets:
+                strategy_used = "External Transcript API (Supadata)"
+
+        # 3. Strategy 1: Direct extraction via youtube-transcript-api (Local / Dev Fallback)
+        err1 = None
+        if not raw_snippets:
+            _safe_log("TRANSCRIPT RETRIEVAL (Strategy 1: youtube-transcript-api)...")
+            raw_snippets, selected_lang, is_gen, err1 = cls._fetch_via_transcript_api(video_id)
+            if raw_snippets:
+                strategy_used = "youtube-transcript-api"
+
+        # 4. Strategy 2: Direct YouTube Innertube API via Android Client (20.10.38)
         err2 = None
         if not raw_snippets:
             _safe_log("TRANSCRIPT RETRIEVAL (Strategy 2: Innertube Android Client)...")
@@ -557,7 +541,7 @@ class YouTubeService:
             if raw_snippets:
                 strategy_used = "Innertube Android API"
 
-        # 4. Strategy 3: In-memory subtitle stream extraction via yt-dlp
+        # 5. Strategy 3: In-memory subtitle stream extraction via yt-dlp
         err3 = None
         if not raw_snippets:
             _safe_log("TRANSCRIPT RETRIEVAL (Strategy 3: yt-dlp subtitle stream)...")
@@ -565,7 +549,7 @@ class YouTubeService:
             if raw_snippets:
                 strategy_used = "yt-dlp timedtext stream"
 
-        # 5. Strategy 4: Audio download + Groq Whisper Speech-to-Text
+        # 6. Strategy 4: Audio download + Groq Whisper Speech-to-Text
         err4 = None
         if not raw_snippets:
             _safe_log("TRANSCRIPT RETRIEVAL (Strategy 4: Audio download + Groq Whisper STT)...")
@@ -573,15 +557,15 @@ class YouTubeService:
             if raw_snippets:
                 strategy_used = "yt-dlp audio + Groq Whisper STT"
 
-        # 6. Detailed Technical Logging & Differentiated Error Classification
+        # 7. Detailed Technical Logging & Differentiated Error Classification
         if not raw_snippets:
             _safe_log("TRANSCRIPT RESULT: not found across all strategies")
             logger.error(
                 "YouTube processing failed for video %s | URL: %s | "
-                "Strategy 1 Error: %s | Strategy 2 Error: %s | Strategy 3 Error: %s | Strategy 4 Error: %s | Metadata Error: %s",
-                video_id, clean_url, err1, err2, err3, err4, meta_err_str
+                "External API Error: %s | Strategy 1 Error: %s | Strategy 2 Error: %s | Strategy 3 Error: %s | Strategy 4 Error: %s | Metadata Error: %s",
+                video_id, clean_url, err_ext, err1, err2, err3, err4, meta_err_str
             )
-            combined_errors = " ".join(filter(None, [meta_err_str or "", err1 or "", err2 or "", err3 or "", err4 or ""])).lower()
+            combined_errors = " ".join(filter(None, [meta_err_str or "", err_ext or "", err1 or "", err2 or "", err3 or "", err4 or ""])).lower()
 
             if any(k in combined_errors for k in ["private video", "video unavailable", "removed", "not available", "sign in if you've been granted access", "agerestricted"]):
                 raise ValueError("This YouTube video is unavailable, private, or age-restricted. Please verify the URL or upload the video file directly.")
@@ -590,7 +574,7 @@ class YouTubeService:
             elif any(k in combined_errors for k in ["connection", "timed out", "timeout", "network"]):
                 raise ValueError("Unable to connect to YouTube servers due to network timeout. Please verify your connection or upload the video file directly.")
             elif any(k in combined_errors for k in ["bot", "429", "too many requests", "rate limit", "captcha", "blocking", "requestblocked"]):
-                raise ValueError("YouTube is currently restricting automatic access from cloud servers for this video. Please upload the video file directly.")
+                raise ValueError("YouTube is currently restricting automatic access from cloud servers for this video. Please configure YOUTUBE_TRANSCRIPT_API_KEY or upload the video file directly.")
             else:
                 raise ValueError("This video does not have an accessible transcript. Please upload the video file instead.")
 

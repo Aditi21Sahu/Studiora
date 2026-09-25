@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
@@ -14,6 +15,9 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = (os.getenv("GROQ_API_KEY") or "").strip()
     GROQ_TEXT_MODEL: str = os.getenv("GROQ_TEXT_MODEL", "openai/gpt-oss-120b")
     GROQ_STT_MODEL: str = os.getenv("GROQ_STT_MODEL", "whisper-large-v3-turbo")
+
+    # YouTube External Transcript API (Supadata - solves cloud IP datacenter restriction)
+    YOUTUBE_TRANSCRIPT_API_KEY: Optional[str] = (os.getenv("YOUTUBE_TRANSCRIPT_API_KEY") or "").strip() or None
     
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
