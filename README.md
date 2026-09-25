@@ -30,6 +30,16 @@ Studiora is an AI-powered learning platform designed for students. It transforms
     - Correct answer highlighting in green.
     - Incorrect answer highlighting in red with the correct option identified.
     - Clear AI-grounded educational explanation detailing *why* the answer is correct.
+- **25-Mark Timed Examination Test Papers**:
+  - Full-length structured examination papers simulating authentic school and competitive exams.
+  - Exactly 20 questions totaling 25 marks across 3 structured sections:
+    - **Section A**: 10 Multiple-Choice Questions (10 Marks).
+    - **Section B**: 6 Short Answer Conceptual Questions (6 Marks).
+    - **Section C**: 3 Long Answer Explanatory Questions (9 Marks).
+  - 30-minute real-time countdown timer, autosave draft persistence, question navigation palette, and automated evaluation with model answers.
+- **Cloud-Ready YouTube Ingestion**:
+  - Uses **Supadata AI Transcript API** with canonical URL resolution to bypass YouTube datacenter anti-bot IP blocks on cloud hosts like Render.
+  - Graceful multi-tier fallback to `youtube-transcript-api`, Innertube Android Client, in-memory `yt-dlp` subtitle extraction, and Groq Whisper STT for local development.
 - **Comprehensive Results & Learning Growth**:
   - Final score percentage and correct/incorrect counters.
   - Interactive HTML5 canvas learning growth chart tracking score progression over time.
@@ -66,18 +76,18 @@ Studiora follows a clean, modern EdTech design system with soft lavender backgro
 
 - **Frontend**:
   - HTML5 & CSS3
-  - Vanilla JavaScript
+  - Vanilla JavaScript (ES6+)
   - Google Fonts (Poppins & Inter)
 - **Backend**:
-  - Python 3.10+
-  - FastAPI & Uvicorn
+  - Python 3.13 (pinned for cloud deployments)
+  - FastAPI & Uvicorn ASGI
   - SQLAlchemy ORM
   - SQLite Database (`studiora.db`)
   - Passlib & Bcrypt (Password Hashing)
   - Python-Jose (JWT Authentication)
   - Groq Python SDK (`llama-3.3-70b-versatile` & `whisper-large-v3-turbo`)
+  - Supadata AI Transcript API (Cloud YouTube Ingestion)
   - PyMuPDF (`fitz`), Python-Docx & ReportLab
-  - FFmpeg & yt-dlp & YouTube-Transcript-API
 
 ---
 
@@ -97,6 +107,7 @@ studiora/
 │   │   ├── material.js       # Drag & drop upload, YouTube URL processing & previews
 │   │   ├── notes.js          # Notes library, reader modal & PDF/TXT downloads
 │   │   ├── quiz.js           # Quiz generator, interactive runner & scoring
+│   │   ├── test-paper.js     # 25-mark timed exam runner, autosave & review
 │   │   └── reports.js        # Analytics summary & past attempt breakdown
 │   ├── index.html            # Landing page with hero & feature highlights
 │   ├── login.html            # User login
@@ -106,6 +117,7 @@ studiora/
 │   ├── study-material.html   # Upload documents & video links
 │   ├── notes.html            # Structured study notes
 │   ├── quizzes.html          # Interactive practice tests
+│   ├── test-papers.html      # 25-mark timed exam simulator
 │   └── reports.html          # Growth analytics & performance review
 │
 ├── backend/
@@ -113,16 +125,18 @@ studiora/
 │   │   ├── main.py           # FastAPI entry point, static frontend mount & CORS
 │   │   ├── database.py       # SQLite connection & session
 │   │   ├── config.py         # Settings & environment configuration
-│   │   ├── models/           # User, Material, Note, Quiz, Attempt, Activity
+│   │   ├── models/           # User, Material, Note, Quiz, Attempt, TestPaper, Activity
 │   │   ├── schemas/          # Pydantic request & response models
-│   │   ├── services/         # Document, Video, Notes, Quiz, Auth & YouTube services
-│   │   └── routes/           # Modular API routers (/api/auth, /api/materials, etc.)
+│   │   ├── services/         # TranscriptService, Notes, Quiz, Test, Document, Auth
+│   │   └── routes/           # Modular API routers (/api/materials, /api/tests, etc.)
 │   ├── uploads/              # Local file uploads directory
-│   ├── .env                  # Local environment configuration (Groq API Key)
-│   ├── requirements.txt      # Python dependencies
+│   ├── .env.example          # Environment variables template
+│   ├── requirements.txt      # Python dependencies (pinned for Python 3.13)
 │   ├── studiora.db           # SQLite database
-│   └── test_backend.py       # Comprehensive end-to-end integration test suite
+│   └── main.py               # Render root deployment entry-point
 │
+├── render.yaml               # Infrastructure-as-code for Render deployment
+├── .python-version           # Pinned to 3.13
 ├── README.md
 ├── .gitignore
 └── LICENSE
@@ -161,9 +175,10 @@ studiora/
    ```
 
 4. Configure your `.env` file:
-   Ensure `backend/.env` contains your **Groq API Key**:
+   Ensure `backend/.env` contains your API keys:
    ```ini
    GROQ_API_KEY=your_actual_groq_api_key_here
+   YOUTUBE_TRANSCRIPT_API_KEY=your_actual_supadata_api_key_here
    GROQ_TEXT_MODEL=llama-3.3-70b-versatile
    GROQ_STT_MODEL=whisper-large-v3-turbo
    DATABASE_URL=sqlite:///./studiora.db
